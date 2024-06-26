@@ -13,7 +13,7 @@ public class Board {
     private int[][] board = new int[ROWS][COLUMNS];
 
     public Board() {
-        // initialize the game board with 0s, denoting empty spaces
+        // initialize the game board with 0s denoting empty spaces
         for (int[] row : board) {
             Arrays.fill(row, EMPTY);
         }
@@ -30,8 +30,18 @@ public class Board {
     }
 
     // check if the given spot on the board is empty
-    public boolean isValidSpot(int col) {
-        return board[ROWS - 1][col] == EMPTY;
+    public boolean isValidSpot(String loc) {
+        loc = loc.toLowerCase();
+        char row = loc.charAt(0);
+        char col = loc.charAt(1);
+        // get the integer value of the char (i.e. a = 0, b = 1, etc.)
+        int r = row - 'a';
+        int c = col - '0';
+        // make sure the board location is not invalid
+        if (r > 7 || c > 7 || r < 0 || c < 0) {
+            System.out.println("Invalid location!");
+        }
+        return board[r][c] == EMPTY;
     }
 
     // find the next open row given a column
@@ -46,8 +56,20 @@ public class Board {
     }
 
     // place a piece on the board
-    public void placePiece(int row, int col, int piece) {
-        board[row][col] = piece;
+    public void placePiece(String loc, int piece) {
+        loc = loc.toLowerCase();
+        char row = loc.charAt(0);
+        char col = loc.charAt(1);
+        // get the integer value of the char (i.e. a = 0, b = 1, etc.)
+        int r = row - 'a';
+        int c = col - '0';
+        // make sure the board location is not invalid
+        if (r > 7 || c > 7 || r < 0 || c < 0) {
+            System.out.println("Invalid location!");
+        }
+        else {
+            board[r][c] = piece;
+        }
     }
 
     // check for win condition
