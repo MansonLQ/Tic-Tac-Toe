@@ -44,17 +44,6 @@ public class Board {
         return board[r][c] == EMPTY;
     }
 
-    // find the next open row given a column
-    public int getNextOpenRow(int col) {
-        for (int row = 0; row < ROWS; row++) {
-            if(board[row][col] == EMPTY) {
-                return row;
-            }
-        }
-        // if nothing, return -1
-        return -1;
-    }
-
     // place a piece on the board
     public void placePiece(String loc, int piece) {
         loc = loc.toLowerCase();
@@ -66,8 +55,7 @@ public class Board {
         // make sure the board location is not invalid
         if (r > 7 || c > 7 || r < 0 || c < 0) {
             System.out.println("Invalid location!");
-        }
-        else {
+        } else {
             board[r][c] = piece;
         }
     }
@@ -77,8 +65,8 @@ public class Board {
         // check horizontally
         for (int col = 0; col < COLUMNS - 3; col++) {
             for (int row = 0; row < ROWS; row++) {
-                if (board[row][col] == piece && board[row][col+1] == piece && board[row][col+2] == piece && 
-                board[row][col+3] == piece) {
+                if (board[row][col] == piece && board[row][col + 1] == piece && board[row][col + 2] == piece &&
+                        board[row][col + 3] == piece) {
                     return true;
                 }
             }
@@ -86,8 +74,8 @@ public class Board {
         // check vertically
         for (int col = 0; col < COLUMNS; col++) {
             for (int row = 0; row < ROWS - 3; row++) {
-                if (board[row][col] == piece && board[row+1][col] == piece && board[row+2][col] == piece && 
-                board[row+3][col] == piece) {
+                if (board[row][col] == piece && board[row + 1][col] == piece && board[row + 2][col] == piece &&
+                        board[row + 3][col] == piece) {
                     return true;
                 }
             }
