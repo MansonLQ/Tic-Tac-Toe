@@ -20,8 +20,8 @@ public class Main {
         
         while (!gameOver) {
             game.printBoard();
-            if (turn == 0) {
-                // human goes first
+            if (turn % 2 == 0) {
+                // on even numbered turn, human plays
                 System.out.print("Enter board location: ");
                 String in = kb.nextLine();
                 // place piece on board
@@ -35,7 +35,20 @@ public class Main {
                 }
             }
             else {
-                // computer's turn
+                // on odd numbered turn, computer plays
+                // keep track of the start time here:
+                // this is used to calculate the 5 sec limit for AI player
+                long startTime = System.currentTimeMillis();
+                // call minimax here, which generates a move
+                // play the move here
+                // if (game.isValidSpot(aiMove)) {
+                    // game.placePiece(aiMove, COMPUTER);
+                    // moves.add(aiMove.toString)
+                    // if(game.isWinCon(COMPUTER)) {
+                        // System.out.println("You lose!");
+                        // gameOver = true;
+                    // }
+                // }
             }
         }
     }
