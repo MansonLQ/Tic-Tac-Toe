@@ -1,3 +1,5 @@
+package TicTacToe;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -7,6 +9,7 @@ public class Main {
     public static final int PLAYER = 1;
     public static final int COMPUTER = 2;
     private static List<String> moves = new ArrayList<>();
+
     public static void main(String[] args) {
         // TODO: finish main game loop
         Board game = new Board();
@@ -17,7 +20,7 @@ public class Main {
         Scanner kb = new Scanner(System.in);
         boolean gameOver = false;
         int turn = 0;
-        
+
         while (!gameOver) {
             game.printBoard();
             if (turn % 2 == 0) {
@@ -28,13 +31,12 @@ public class Main {
                 if (game.isValidSpot(in)) {
                     game.placePiece(in, PLAYER);
                     moves.add(in.toLowerCase());
-                    if(game.isWinCon(PLAYER)) {
+                    if (game.isWinCon(PLAYER)) {
                         System.out.println("You win!");
                         gameOver = true;
                     }
                 }
-            }
-            else {
+            } else {
                 // on odd numbered turn, computer plays
                 // keep track of the start time here:
                 // this is used to calculate the 5 sec limit for AI player
@@ -42,12 +44,12 @@ public class Main {
                 // call minimax here, which generates a move
                 // play the move here
                 // if (game.isValidSpot(aiMove)) {
-                    // game.placePiece(aiMove, COMPUTER);
-                    // moves.add(aiMove.toString)
-                    // if(game.isWinCon(COMPUTER)) {
-                        // System.out.println("You lose!");
-                        // gameOver = true;
-                    // }
+                // game.placePiece(aiMove, COMPUTER);
+                // moves.add(aiMove.toString)
+                // if(game.isWinCon(COMPUTER)) {
+                // System.out.println("You lose!");
+                // gameOver = true;
+                // }
                 // }
             }
         }
