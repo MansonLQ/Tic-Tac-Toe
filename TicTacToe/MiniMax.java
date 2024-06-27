@@ -1,8 +1,37 @@
 package TicTacToe;
+import java.util.concurrent.*;
 
 public class MiniMax {
+    public static String pickBestMove(Board board) {
+        ExecutorService exec = Executors.newSingleThreadExecutor();
+        Future<String> future = exec.submit(new Callable<String>() {
+            @Override
+            public String call() {
+                return findBestMove(board);
+            }
+        });
 
-    public static String pickBestMove(Board board) { // min max function, without alpha beta pruning yet
+        String bestMove = "";
+
+        try {
+            // wait for 5 seconds to get the best move
+            bestMove = future.get(5, TimeUnit.SECONDS);
+        } 
+        catch (TimeoutException e) {
+            System.out.println("Time limit exceeded. Using the best move found so far.");
+            bestMove = findBestMove(board); // get the best move found so far
+        } 
+        catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        } 
+        finally {
+            exec.shutdown();
+        }
+
+        return bestMove;
+    }
+
+    public static String findBestMove(Board board) { // min max function, without alpha beta pruning yet
         int[][] boardState = board.getBoard();
         int bestValue = -1000;
         String bestMove = "";

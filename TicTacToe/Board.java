@@ -14,29 +14,30 @@ public class Board {
 
     private int[][] board = new int[ROWS][COLUMNS];
 
-    public static void main(String[] args) {
-        Board board = new Board();
+    // public static void main(String[] args) {
+    //     Board board = new Board();
 
-        board.placeMove("H4", HUMAN);
-        board.placeMove("H5", HUMAN);
-        board.placeMove("H6", HUMAN);
-        board.placeMove("Z7", HUMAN);
+    //     board.placeMove("H4", HUMAN);
+    //     board.placeMove("H5", HUMAN);
+    //     board.placeMove("H6", HUMAN);
+    //     board.placeMove("H7", HUMAN);
+    //     board.placeMove("Z7", HUMAN);
 
-        board.displayBoard();
+    //     board.displayBoard();
 
-        switch (board.checkWinner()) {
-            case 0:
-                System.out.println("No winner yet");
-                break;
-            case 1:
-                System.out.println("Human won");
-                break;
-            case 2:
-                System.out.println("AI won");
-                break;
-        }
+    //     switch (board.checkWinner()) {
+    //         case 0:
+    //             System.out.println("No winner yet");
+    //             break;
+    //         case 1:
+    //             System.out.println("Human won");
+    //             break;
+    //         case 2:
+    //             System.out.println("AI won");
+    //             break;
+    //     }
 
-    }
+    // }
 
     public Board() {
         // initialize the game board with 0s denoting empty spaces
