@@ -84,6 +84,17 @@ public class Board {
 
     }
 
+    public boolean hasMovesLeft() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLUMNS; col++) {
+                if (board[row][col] == EMPTY) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int checkWinner() { // returns 1 if human won, 2 if ai won, 0 if no winner
         // check horizontally
         for (int col = 0; col < COLUMNS - 3; col++) {
