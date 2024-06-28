@@ -63,11 +63,18 @@ public class Board {
     public void displayBoard() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLUMNS; j++) {
-                System.out.print(board[i][j] + " ");
+                if (board[i][j] == EMPTY) {
+                    System.out.print("- ");
+                } else if (board[i][j] == COMPUTER) {
+                    System.out.print("x ");
+                } else if (board[i][j] == HUMAN) {
+                    System.out.print("o ");
+                }
             }
             System.out.println();
         }
     }
+    
 
     private boolean isValidSpot(int row, int column) {
         if (row < 0 || row >= ROWS || column < 0 || column >= COLUMNS || board[row][column] != EMPTY) {
