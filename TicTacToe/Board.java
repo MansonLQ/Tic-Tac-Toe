@@ -5,48 +5,50 @@ import java.util.Arrays;
 public class Board {
     public static final int ROWS = 8;
     public static final int COLUMNS = 8;
-    // empty spaces are marked 0 on the board array
     public static final int EMPTY = 0;
-    // the player's spaces are marked 1 on the board array
     public static final int HUMAN = 1;
-    // the computer's spaces are marked 2 on the board array
     public static final int COMPUTER = 2;
 
     private int[][] board = new int[ROWS][COLUMNS];
 
-    // public static void main(String[] args) {
-    //     Board board = new Board();
+    public static void main(String[] args) {
+        int[][] test = {
+                { 1, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 1, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 1, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 1, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+        };
+        Board board = new Board();
 
-    //     board.placeMove("H4", HUMAN);
-    //     board.placeMove("H5", HUMAN);
-    //     board.placeMove("H6", HUMAN);
-    //     board.placeMove("H7", HUMAN);
-    //     board.placeMove("Z7", HUMAN);
+        board.placeMove(0, 1, HUMAN);
+        board.placeMove(0, 2, COMPUTER);
+        board.placeMove(0, 3, HUMAN);
 
-    //     board.displayBoard();
+        board.undoMove(0, 3);
 
-    //     switch (board.checkWinner()) {
-    //         case 0:
-    //             System.out.println("No winner yet");
-    //             break;
-    //         case 1:
-    //             System.out.println("Human won");
-    //             break;
-    //         case 2:
-    //             System.out.println("AI won");
-    //             break;
-    //     }
+        board.displayBoard();
 
-    // }
-
-    public Board() {
-        // initialize the game board with 0s denoting empty spaces
-        for (int[] row : board) {
-            Arrays.fill(row, EMPTY);
+        switch (board.checkWinner()) {
+            case 0:
+                System.out.println("No winner yet");
+                break;
+            case 1:
+                System.out.println("Human won");
+                break;
+            case 2:
+                System.out.println("AI won");
+                break;
         }
+
     }
 
-    // create a deep copy of the board for minimax
+    public Board() {
+    }
+
     public Board(int[][] boardState) {
         for (int i = 0; i < ROWS; i++) {
             board[i] = Arrays.copyOf(boardState[i], COLUMNS);
@@ -66,41 +68,47 @@ public class Board {
         }
     }
 
-    private boolean isValidSpot(String coords, int row, int column) {
+    private boolean isValidSpot(int row, int column) {
         if (row < 0 || row > 7 || column < 0 || column > 7) {
-            System.out.println("Invalid location: " + coords);
+            // System.out.println("Invalid location: (" + row + ", " + column + "):
+            // Board.java");
+            System.out.println("Invalid location, try again.");
             return false;
         }
 
         return board[row][column] == EMPTY;
     }
 
-    public boolean placeMove(String coords, int player) { // checks if coords are out of bounds or spot is taken
-        coords = coords.toLowerCase();
-        char row = coords.charAt(0);
-        char col = coords.charAt(1);
-        // get the integer value of the char (i.e. a = 0, b = 1, etc.)
-        int r = row - 'a';
-        int c = col - '0';
-
-        if (isValidSpot(coords, r, c)) {
-            board[r][c] = player;
-            return true; // move made successfully
+    public boolean placeMove(int row, int column, int player) {
+        if (isValidSpot(row, column)) {
+            board[row][column] = player;
+            return true;
         }
 
-        return false; // move not valid
-
+        // "Moved failed to be place: Board.java
+        return false;
     }
 
-    public boolean hasMovesLeft() {
+    public boolean undoMove(int row, int column) { // coords both ints
+        if (board[row][column] != 0) {
+            board[row][column] = 0;
+            return true;
+        }
+
+        System.out.println("Space is already empty: Board.java");
+        return false;
+    }
+
+    public int emptySpaces() {
+        int count = 0;
         for (int row = 0; row < ROWS; row++) {
             for (int col = 0; col < COLUMNS; col++) {
                 if (board[row][col] == EMPTY) {
-                    return true;
+                    count++;
                 }
             }
         }
-        return false;
+        return count;
     }
 
     public int checkWinner() { // returns 1 if human won, 2 if ai won, 0 if no winner

@@ -1,86 +1,69 @@
 package TicTacToe;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static final int EMPTY = 0;
-    public static final int PLAYER = 1;
-    public static final int COMPUTER = 2;
-    private static List<String> moves = new ArrayList<>();
-
     public static void main(String[] args) {
-        // Initialize the game board and start the game
         Board board = new Board();
-        playGame(board);
+        startGame(board);
     }
 
-    public static void playGame(Board board) {
-        Scanner kb = new Scanner(System.in);
+    private static boolean isGameOver(Board board) {
+        switch (board.checkWinner()) {
+            case 0:
+                return false;
+            case 1:
+                System.out.println("You win!");
+                return true;
+            case 2:
+                System.out.println("You lose!");
+                return true;
+        }
+        System.out.println("Check bug");
+        return false;
+    }
+
+    public static void startGame(Board board) {
+        Scanner scan = new Scanner(System.in);
         boolean gameOver = false;
-        int turn = 0;
+
+        board.displayBoard();
 
         while (!gameOver) {
-            board.displayBoard();
-            if (turn % 2 == 0) {
-                // Human's turn
-                boolean validMove = false;
-                while (!validMove) {
-                    System.out.print("Enter board location: ");
-                    String move = kb.nextLine();
-                    validMove = board.placeMove(move, PLAYER);
-                    if (!validMove) {
-                        System.out.println("Invalid move, try again.");
-                    } else {
-                        // Player move was valid, continue
-                        moves.add("Player: " + move.toLowerCase());
-                        switch (board.checkWinner()) {
-                            case 0:
-                                break;
-                            case 1:
-                                System.out.println("You win!");
-                                gameOver = true;
-                                break;
-                            case 2:
-                                System.out.println("You lose!");
-                                gameOver = true;
-                                break;
-                        }
-                    }
-                }
-            } 
-            else {
-                // Computer's turn
-                System.out.println("Computer is thinking...");
-                // findBestMove() bypasses the 5 sec timer for debug
-                // to re-enable timer, use pickBestMove() instead
-                String bestMove = MiniMax.findBestMove(board);
-                System.out.println("bestMove: " + bestMove);
-                if (bestMove.length() < 2) {  // ensure bestMove is valid before using it
-                    System.out.println("No valid moves found. Ending game.");
-                    gameOver = true;
-                    break;
-                }
-                int row = Character.getNumericValue(bestMove.charAt(0));
-                int col = Character.getNumericValue(bestMove.charAt(1));
-                board.placeMove("" + (char) ('a' + row) + (col + 1), COMPUTER);  // Fix the letter case for consistency
-                moves.add("Computer: " + bestMove);
-                switch (board.checkWinner()) {
-                    case 0:
-                        break;
-                    case 1:
-                        System.out.println("You win!");
-                        gameOver = true;
-                        break;
-                    case 2:
-                        System.out.println("You lose!");
-                        gameOver = true;
-                        break;
-                }
+
+            // Human's turn
+            boolean validMove = false;
+            while (!validMove) {
+                System.out.print("Enter board location: ");
+                String humanMove = scan.nextLine();
+                System.out.println();
+
+                int row = Character.toLowerCase(humanMove.charAt(0)) - 'a';
+                int column = Character.getNumericValue(humanMove.charAt(1));
+                validMove = board.placeMove(row, column, Board.HUMAN);
             }
-            turn++;
+
+            gameOver = isGameOver(board);
+
+            // Computer's turn
+            System.out.println("Computer's turn...\n");
+
+            // String bestMove = MiniMax.findBestMove(board);
+            String bestMove = "01";
+
+            int row = Character.getNumericValue(bestMove.charAt(0));
+            int column = Character.getNumericValue(bestMove.charAt(1));
+
+            String computerMove = "" + Character.toUpperCase((char) ('a' + row)) + (column);
+            board.placeMove(row, column, Board.COMPUTER);
+
+            board.displayBoard();
+            System.out.println("Computer placed: " + computerMove);
+
+            gameOver = isGameOver(board);
+
         }
-        kb.close();
+
+        scan.close();
     }
 }
