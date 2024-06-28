@@ -11,7 +11,7 @@ public class Main {
     private static List<String> moves = new ArrayList<>();
 
     public static void main(String[] args) {
-        // TODO: finish main game loop
+        // Initialize the game board and start the game
         Board board = new Board();
         playGame(board);
     }
@@ -21,76 +21,41 @@ public class Main {
         boolean gameOver = false;
         int turn = 0;
 
-        // while (!gameOver) {
-        //     game.printBoard();
-        //     if (turn % 2 == 0) {
-        //         // on even numbered turn, human plays
-        //         System.out.print("Enter board location: ");
-        //         String in = kb.nextLine();
-        //         // place piece on board
-        //         if (game.isValidSpot(in)) {
-        //             game.placePiece(in, PLAYER);
-        //             moves.add(in.toLowerCase());
-        //             if (game.isWinCon(PLAYER)) {
-        //                 System.out.println("You win!");
-        //                 gameOver = true;
-        //             }
-        //         }
-        //     } else {
-        //         // on odd numbered turn, computer plays
-        //         // keep track of the start time here:
-        //         // this is used to calculate the 5 sec limit for AI player
-        //         long startTime = System.currentTimeMillis();
-        //         // call minimax here, which generates a move
-        //         // play the move here
-        //         // if (game.isValidSpot(aiMove)) {
-        //         // game.placePiece(aiMove, COMPUTER);
-        //         // moves.add(aiMove.toString)
-        //         // if(game.isWinCon(COMPUTER)) {
-        //         // System.out.println("You lose!");
-        //         // gameOver = true;
-        //         // }
-        //         // }
-        //     }
-        // }
-
         while (!gameOver) {
             board.displayBoard();
             if (turn % 2 == 0) {
-                // human's turn
+                // Human's turn
                 boolean validMove = false;
-                System.out.print("Enter board location: ");
-                String move = kb.nextLine();
-                validMove = board.placeMove(move, PLAYER);
-                // place the move on board
-                if (!validMove) {
-                    System.out.println("Invalid move, try again.");
+                while (!validMove) {
+                    System.out.print("Enter board location: ");
+                    String move = kb.nextLine();
+                    validMove = board.placeMove(move, PLAYER);
+                    if (!validMove) {
+                        System.out.println("Invalid move, try again.");
+                    } else {
+                        // Player move was valid, continue
+                        moves.add("Player: " + move.toLowerCase());
+                        switch (board.checkWinner()) {
+                            case 0:
+                                break;
+                            case 1:
+                                System.out.println("You win!");
+                                gameOver = true;
+                                break;
+                            case 2:
+                                System.out.println("You lose!");
+                                gameOver = true;
+                                break;
+                        }
+                    }
                 }
-                else {
-                   // player move was valid, continue
-                   moves.add("Player: " + move.toLowerCase());
-                   switch (board.checkWinner()) {
-                       case 0:
-                           break;
-                       case 1:
-                           System.out.println("You win!");
-                           gameOver = true;
-                           break;
-                       case 2:
-                           System.out.println("You lose!");
-                           gameOver = true;
-                           break;
-                   } 
-                }
-            }
-
-            else {
-                // computer's turn
+            } else {
+                // Computer's turn
                 System.out.println("Computer is thinking...");
                 String bestMove = MiniMax.pickBestMove(board);
                 int row = Character.getNumericValue(bestMove.charAt(0));
                 int col = Character.getNumericValue(bestMove.charAt(1));
-                board.placeMove("" + (char) ('A' + row) + (col + 1), COMPUTER);
+                board.placeMove("" + (char) ('a' + row) + (col + 1), COMPUTER);  // Fix the letter case for consistency
                 moves.add("Computer: " + bestMove);
                 switch (board.checkWinner()) {
                     case 0:
@@ -104,13 +69,9 @@ public class Main {
                         gameOver = true;
                         break;
                 }
-
-
             }
-
             turn++;
         }
-
         kb.close();
     }
 }
