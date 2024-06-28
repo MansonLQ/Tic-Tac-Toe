@@ -53,6 +53,8 @@ public class Main {
             else {
                 // Computer's turn
                 System.out.println("Computer is thinking...");
+                // findBestMove() bypasses the 5 sec timer for debug
+                // to re-enable timer, use pickBestMove() instead
                 String bestMove = MiniMax.findBestMove(board);
                 System.out.println("bestMove: " + bestMove);
                 if (bestMove.length() < 2) {  // ensure bestMove is valid before using it
