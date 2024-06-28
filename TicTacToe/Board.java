@@ -8,7 +8,7 @@ public class Board {
     public static final int EMPTY = 0;
     public static final int HUMAN = 1;
     public static final int COMPUTER = 2;
-    public static final int WIN_CONDITION = 4; // Adjust win condition as needed
+    public static final int WIN_CONDITION = 4;
 
     private int[][] board = new int[ROWS][COLUMNS];
 
