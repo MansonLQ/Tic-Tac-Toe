@@ -2,48 +2,54 @@ package TicTacToe;
 import java.util.concurrent.*;
 
 public class MiniMax {
+    // initialize bestMove to a known value to make debug easier
+    private static volatile String bestMove = "00";
+    private static volatile int bestValue = -1000;
+
     public static String pickBestMove(Board board) {
-        ExecutorService exec = Executors.newSingleThreadExecutor();
-        Future<String> future = exec.submit(new Callable<String>() {
-            @Override
-            public String call() {
-                return findBestMove(board);
-            }
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<String> future = executor.submit(() -> {
+            findBestMove(board);
+            return bestMove;
         });
 
-        String bestMove = "";
-
         try {
-            // wait for 5 seconds to get the best move
-            bestMove = future.get(5, TimeUnit.SECONDS);
+            // Wait for 5 seconds to get the best move
+            return future.get(5, TimeUnit.SECONDS);
         } 
         catch (TimeoutException e) {
             System.out.println("Time limit exceeded. Using the best move found so far.");
-            bestMove = findBestMove(board); // get the best move found so far
+            // Return the best move found so far within the time limit
         } 
         catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         } 
         finally {
-            exec.shutdown();
+            executor.shutdown();
         }
 
+        System.out.println("Best move returned: " + bestMove); 
         return bestMove;
     }
 
+
     public static String findBestMove(Board board) { // min max function, without alpha beta pruning yet
         int[][] boardState = board.getBoard();
-        int bestValue = -1000;
-        String bestMove = "";
+        bestValue = -1000;
+        bestMove = "00";
 
         for (int row = 0; row < boardState.length; row++) { // iterate through all tiles
             for (int col = 0; col < boardState[row].length; col++) {
                 if (boardState[row][col] == 0) { // if the space is empty
                     boardState[row][col] = 2; // ai will "evaluate" this move
 
-                    int moveScore = miniMax(board, 0, false, -1000, 1000); // return score for possible ai move
+                    // create a copy of the board
+                    int moveScore = miniMax(new Board(boardState), 0, false, -1000, 1000); // return score for possible ai move
 
                     boardState[row][col] = 0; // undo the ai move so it doesnt change the actual board
+
+                    // Debugging statement to print move and score
+                    System.out.println("Evaluating move: " + row + col + " with score: " + moveScore);
 
                     if (moveScore > bestValue) {
                         bestValue = moveScore;
@@ -55,7 +61,8 @@ public class MiniMax {
                 }
             }
         }
-
+        // Debugging statement to print best move and value
+        System.out.println("Best move found: " + bestMove + " with value: " + bestValue);
         return bestMove;
     }
 
@@ -93,12 +100,17 @@ public class MiniMax {
                 for (int col = 0; col < boardState[row].length; col++) {
                     if (boardState[row][col] == 0) {
                         boardState[row][col] = 2;
-                        best = Math.max(best, miniMax(board, depth + 1, !isMaxTurn, alpha, beta));
+
+                        // Debugging statement to print the board state
+                        System.out.println("Minimax (Max): Depth: " + depth + ", Move: " + row + col);
+                        printBoardState(boardState);
+
+                        best = Math.max(best, miniMax(new Board(boardState), depth + 1, !isMaxTurn, alpha, beta));                        
                         boardState[row][col] = 0;
                         alpha = Math.max(alpha, best);
 
                         if (beta <= alpha) {
-                            return best;
+                            break;
                         }
                     }
                 }
@@ -111,18 +123,31 @@ public class MiniMax {
                 for (int col = 0; col < boardState[row].length; col++) {
                     if (boardState[row][col] == 0) {
                         boardState[row][col] = 1; // assume human will try to maximize its value
-                        best = Math.min(best, miniMax(board, depth + 1, !isMaxTurn, alpha, beta));
 
+                        // Debugging statement to print the board state
+                        System.out.println("Minimax (Min): Depth: " + depth + ", Move: " + row + col);
+                        printBoardState(boardState);              
+
+                        best = Math.min(best, miniMax(new Board(boardState), depth + 1, !isMaxTurn, alpha, beta));
                         boardState[row][col] = 0; // undo the human move to not chance the actual board
                         beta = Math.min(beta, best);
 
                         if (beta <= alpha) {
-                            return best;
+                            break;
                         }
                     }
                 }
             }
             return best;
+        }
+    }
+
+    private static void printBoardState(int[][] boardState) {
+        for (int i = 0; i < boardState.length; i++) {
+            for (int j = 0; j < boardState[i].length; j++) {
+                System.out.print(boardState[i][j] + " ");
+            }
+            System.out.println();
         }
     }
 

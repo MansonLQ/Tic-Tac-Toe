@@ -46,6 +46,13 @@ public class Board {
         }
     }
 
+    // create a deep copy of the board for minimax
+    public Board(int[][] boardState) {
+        for (int i = 0; i < ROWS; i++) {
+            board[i] = Arrays.copyOf(boardState[i], COLUMNS);
+        }
+    }
+
     public int[][] getBoard() {
         return board;
     }

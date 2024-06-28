@@ -49,10 +49,17 @@ public class Main {
                         }
                     }
                 }
-            } else {
+            } 
+            else {
                 // Computer's turn
                 System.out.println("Computer is thinking...");
-                String bestMove = MiniMax.pickBestMove(board);
+                String bestMove = MiniMax.findBestMove(board);
+                System.out.println("bestMove: " + bestMove);
+                if (bestMove.length() < 2) {  // ensure bestMove is valid before using it
+                    System.out.println("No valid moves found. Ending game.");
+                    gameOver = true;
+                    break;
+                }
                 int row = Character.getNumericValue(bestMove.charAt(0));
                 int col = Character.getNumericValue(bestMove.charAt(1));
                 board.placeMove("" + (char) ('a' + row) + (col + 1), COMPUTER);  // Fix the letter case for consistency
