@@ -19,7 +19,6 @@ public class Main {
                 System.out.println("You lose!");
                 return true;
         }
-        System.out.println("Check bug");
         return false;
     }
 
@@ -30,12 +29,11 @@ public class Main {
         board.displayBoard();
 
         while (!gameOver) {
-
             // Human's turn
             boolean validMove = false;
             while (!validMove) {
-                System.out.print("Enter board location: ");
-                String humanMove = scan.nextLine();
+                System.out.print("Enter board location (e.g., a1): ");
+                String humanMove = scan.nextLine().trim();
                 System.out.println();
 
                 int row = Character.toLowerCase(humanMove.charAt(0)) - 'a';
@@ -52,20 +50,19 @@ public class Main {
             // Computer's turn
             System.out.println("Computer's turn...\n");
 
-            int[] bestMove = MiniMax.findBestMove(board);
-            // String bestMove = "01";
+            long timeLimit = 5000; // Set the time limit for the AI move in milliseconds
+            int[] bestMove = MiniMax.findBestMove(board, timeLimit);
 
             int row = bestMove[0];
             int column = bestMove[1];
 
-            String computerMove = "" + Character.toUpperCase((char) ('a' + row)) + (column);
+            String computerMove = "" + Character.toUpperCase((char) ('a' + row)) + column;
             board.placeMove(row, column, Board.COMPUTER);
 
             board.displayBoard();
             System.out.println("Computer placed: " + computerMove);
 
             gameOver = isGameOver(board);
-
         }
 
         scan.close();

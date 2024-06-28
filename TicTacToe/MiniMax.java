@@ -3,106 +3,108 @@ package TicTacToe;
 public class MiniMax {
     private static final int LOWEST = -1000;
     private static final int HIGHEST = 1000;
-    // public static final int MAX_DEPTH = 6;
+    private static final int MAX_DEPTH = 6;
 
-    public static int[] findBestMove(Board board) {
-        int bestScore = LOWEST;
-        int[] bestMove = new int[] { -1, -1 };
+    public static int[] findBestMove(Board board, long timeLimit) {
+        return minimax(board, timeLimit, LOWEST, HIGHEST, true);
+    }
 
-        int[][] boardState = board.getBoard();
+    private static int[] minimax(Board board, long timeLimit, int alpha, int beta, boolean maximizingPlayer) {
+        int[] bestMove = {-1, -1};
+        int bestValue = maximizingPlayer ? LOWEST : HIGHEST;
+
+        long startTime = System.currentTimeMillis();
 
         for (int row = 0; row < Board.ROWS; row++) {
-            for (int column = 0; column < Board.COLUMNS; column++) {
+            for (int col = 0; col < Board.COLUMNS; col++) {
+                if (board.getBoard()[row][col] == Board.EMPTY) {
+                    board.placeMove(row, col, maximizingPlayer ? Board.COMPUTER : Board.HUMAN);
 
-                if (boardState[row][column] == Board.EMPTY) {
+                    int moveValue = minimaxValue(board, timeLimit - (System.currentTimeMillis() - startTime), alpha, beta, 0, !maximizingPlayer);
 
-                    board.placeMove(row, column, Board.COMPUTER);
+                    board.undoMove(row, col);
 
-                    int boardScore = miniMax(board, 0, false);
-                    // int boardScore = miniMax(board, MAX_DEPTH, false);
+                    System.out.println("Evaluated move: (" + row + ", " + col + "), Score: " + moveValue);
 
-                    board.undoMove(row, column);
+                    if (maximizingPlayer) {
+                        if (moveValue > bestValue) {
+                            bestValue = moveValue;
+                            bestMove[0] = row;
+                            bestMove[1] = col;
+                        }
+                        alpha = Math.max(alpha, moveValue);
+                    } else {
+                        if (moveValue < bestValue) {
+                            bestValue = moveValue;
+                            bestMove[0] = row;
+                            bestMove[1] = col;
+                        }
+                        beta = Math.min(beta, moveValue);
+                    }
 
-                    if (boardScore > bestScore) { // boardScore
-                        bestMove[0] = row;
-                        bestMove[1] = column;
-
-                        bestScore = boardScore;
+                    if (beta <= alpha || System.currentTimeMillis() - startTime >= timeLimit) {
+                        break;
                     }
                 }
             }
         }
+
+        System.out.println("Best move found: (" + bestMove[0] + ", " + bestMove[1] + "), Best Score: " + bestValue);
         return bestMove;
     }
 
-    private static int evaluateBoard(Board board) {
-        int winner = board.checkWinner();
-
-        if (winner == Board.COMPUTER) { // AI winner
-            return 10;
-        } else if (winner == Board.HUMAN) { // human winner
-            return -10;
-        } else { // no winner yet
-            return 0;
-        }
-    }
-
-    private static int miniMax(Board board, int depth, boolean isMaxTurn) {
-        int score = evaluateBoard(board);
-
-        System.out.println(depth + " " + score);
-
-        if (score == 10 || score == -10 || depth == 0) {
-            return score; // computer or human win
+    private static int minimaxValue(Board board, long timeLimit, int alpha, int beta, int depth, boolean maximizingPlayer) {
+        int score = board.evaluateBoard();
+        if (score == 10 - depth || score == depth - 10 || depth == MAX_DEPTH || board.emptySpaces() == 0) {
+            return score;
         }
 
-        if (board.emptySpaces() == 0) {
-            return score; // draw
+        if (System.currentTimeMillis() - timeLimit >= timeLimit) {
+            return score;
         }
 
-        if (isMaxTurn) {
-            int bestScore = LOWEST;
-
-            int[][] boardState = board.getBoard();
+        if (maximizingPlayer) {
+            int bestValue = LOWEST;
 
             for (int row = 0; row < Board.ROWS; row++) {
-                for (int column = 0; column < Board.COLUMNS; column++) {
+                for (int col = 0; col < Board.COLUMNS; col++) {
+                    if (board.getBoard()[row][col] == Board.EMPTY) {
+                        board.placeMove(row, col, Board.COMPUTER);
 
-                    if (boardState[row][column] == Board.EMPTY) {
+                        int value = minimaxValue(board, timeLimit, alpha, beta, depth + 1, false);
+                        bestValue = Math.max(bestValue, value);
+                        alpha = Math.max(alpha, value);
 
-                        board.placeMove(row, column, Board.COMPUTER);
+                        board.undoMove(row, col);
 
-                        // bestScore = Math.max(bestScore, miniMax(board, depth - 1, !isMaxTurn));
-                        bestScore = Math.max(bestScore, miniMax(board, depth + 1, !isMaxTurn));
-
-                        board.undoMove(row, column);
+                        if (beta <= alpha) {
+                            break;
+                        }
                     }
                 }
             }
-
-            return bestScore;
+            return bestValue;
         } else {
-            int bestScore = HIGHEST;
-
-            int[][] boardState = board.getBoard();
+            int bestValue = HIGHEST;
 
             for (int row = 0; row < Board.ROWS; row++) {
-                for (int column = 0; column < Board.COLUMNS; column++) {
+                for (int col = 0; col < Board.COLUMNS; col++) {
+                    if (board.getBoard()[row][col] == Board.EMPTY) {
+                        board.placeMove(row, col, Board.HUMAN);
 
-                    if (boardState[row][column] == Board.EMPTY) {
+                        int value = minimaxValue(board, timeLimit, alpha, beta, depth + 1, true);
+                        bestValue = Math.min(bestValue, value);
+                        beta = Math.min(beta, value);
 
-                        board.placeMove(row, column, Board.HUMAN);
+                        board.undoMove(row, col);
 
-                        // bestScore = Math.min(bestScore, miniMax(board, depth - 1, !isMaxTurn));
-                        bestScore = Math.min(bestScore, miniMax(board, depth + 1, !isMaxTurn));
-
-                        board.undoMove(row, column);
+                        if (beta <= alpha) {
+                            break;
+                        }
                     }
                 }
             }
-
-            return bestScore;
+            return bestValue;
         }
     }
-
 }

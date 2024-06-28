@@ -8,6 +8,7 @@ public class Board {
     public static final int EMPTY = 0;
     public static final int HUMAN = 1;
     public static final int COMPUTER = 2;
+    public static final int WIN_CONDITION = 4; // Adjust win condition as needed
 
     private int[][] board = new int[ROWS][COLUMNS];
 
@@ -69,9 +70,7 @@ public class Board {
     }
 
     private boolean isValidSpot(int row, int column) {
-        if (row < 0 || row > 7 || column < 0 || column > 7 || board[row][column] != EMPTY) {
-            // System.out.println("Invalid location: (" + row + ", " + column + "):
-            // Board.java");
+        if (row < 0 || row >= ROWS || column < 0 || column >= COLUMNS || board[row][column] != EMPTY) {
             System.out.println("Invalid location, try again.");
             return false;
         }
@@ -85,13 +84,12 @@ public class Board {
             return true;
         }
 
-        // "Moved failed to be place: Board.java
         return false;
     }
 
-    public boolean undoMove(int row, int column) { // coords both ints
-        if (board[row][column] != 0) {
-            board[row][column] = 0;
+    public boolean undoMove(int row, int column) {
+        if (board[row][column] != EMPTY) {
+            board[row][column] = EMPTY;
             return true;
         }
 
@@ -111,31 +109,62 @@ public class Board {
         return count;
     }
 
-    public int checkWinner() { // returns 1 if human won, 2 if ai won, 0 if no winner
-        // check horizontally
-        for (int col = 0; col < COLUMNS - 3; col++) {
-            for (int row = 0; row < ROWS; row++) {
-                int player = board[row][col]; // check which player it is checking for winning state
-
-                if (board[row][col] == player && board[row][col + 1] == player && board[row][col + 2] == player &&
-                        board[row][col + 3] == player && player != EMPTY) {
-                    return player;
-                }
-            }
-        }
-        // check vertically
-        for (int col = 0; col < COLUMNS; col++) {
-            for (int row = 0; row < ROWS - 3; row++) {
-                int player = board[row][col];
-
-                if (board[row][col] == player && board[row + 1][col] == player && board[row + 2][col] == player &&
-                        board[row + 3][col] == player && player != EMPTY) {
-                    return player;
-                }
-            }
-        }
-
-        return 0; // no one has won yet
+    // Check if the move results in a win
+    public boolean isWinningMove(int row, int col, int player) {
+        return countInDirection(row, col, player, 1, 0) >= WIN_CONDITION || countInDirection(row, col, player, 0, 1) >= WIN_CONDITION;
     }
 
+    // Count the number of pieces in a given direction
+    private int countInDirection(int row, int col, int player, int dRow, int dCol) {
+        int count = 0;
+        for (int i = -WIN_CONDITION + 1; i < WIN_CONDITION; i++) {
+            int r = row + i * dRow;
+            int c = col + i * dCol;
+            if (r >= 0 && r < ROWS && c >= 0 && c < COLUMNS && board[r][c] == player) {
+                count++;
+                if (count == WIN_CONDITION) {
+                    return count;
+                }
+            } else {
+                count = 0;
+            }
+        }
+        return count;
+    }
+
+    // Evaluate the board state
+    public int evaluateBoard() {
+        int score = 0;
+
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLUMNS; col++) {
+                if (board[row][col] == HUMAN) {
+                    score -= evaluatePosition(row, col, HUMAN); // Decrease score for player's pieces
+                } else if (board[row][col] == COMPUTER) {
+                    score += evaluatePosition(row, col, COMPUTER); // Increase score for computer's pieces
+                }
+            }
+        }
+
+        return score; // Return the evaluated score
+    }
+
+    // Evaluate the position for a given player
+    private int evaluatePosition(int row, int col, int player) {
+        int score = 0;
+        score += countInDirection(row, col, player, 1, 0); // Count pieces in the row direction
+        score += countInDirection(row, col, player, 0, 1); // Count pieces in the column direction
+        return score;
+    }
+
+    public int checkWinner() {
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLUMNS; col++) {
+                if (board[row][col] != EMPTY && isWinningMove(row, col, board[row][col])) {
+                    return board[row][col];
+                }
+            }
+        }
+        return 0; // no winner yet
+    }
 }
