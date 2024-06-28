@@ -1,57 +1,108 @@
 package TicTacToe;
 
 public class MiniMax {
+    private static final int LOWEST = -1000;
+    private static final int HIGHEST = 1000;
+    // public static final int MAX_DEPTH = 6;
 
-    public static String findBestMove(Board board) { // min max function, without alpha beta pruning yet
+    public static int[] findBestMove(Board board) {
+        int bestScore = LOWEST;
+        int[] bestMove = new int[] { -1, -1 };
+
         int[][] boardState = board.getBoard();
-        int bestValue = -1000;
-        String bestMove = "INITIALIZED";
 
-        for (int row = 0; row < boardState.length; row++) { // iterate through all tiles
-            for (int col = 0; col < boardState[row].length; col++) {
-                if (boardState[row][col] == 0) { // if the space is empty
-                    boardState[row][col] = 2; // ai will "evaluate" this move
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int column = 0; column < Board.COLUMNS; column++) {
 
-                    // create a copy of the board
-                    int moveScore = miniMax(new Board(boardState), 0, false); // return score for possible
-                                                                              // ai move
+                if (boardState[row][column] == Board.EMPTY) {
 
-                    boardState[row][col] = 0; // undo the ai move so it doesnt change the actual board
+                    board.placeMove(row, column, Board.COMPUTER);
 
-                    // Debugging statement to print move and score
-                    System.out.println("Evaluating move: " + row + col + " with score: " + moveScore);
+                    int boardScore = miniMax(board, 0, false);
+                    // int boardScore = miniMax(board, MAX_DEPTH, false);
 
-                    if (moveScore > bestValue) {
-                        bestValue = moveScore;
+                    board.undoMove(row, column);
 
-                        // keep track of what placement will get best score
-                        bestMove = "" + row + col;
+                    if (boardScore > bestScore) { // boardScore
+                        bestMove[0] = row;
+                        bestMove[1] = column;
 
+                        bestScore = boardScore;
                     }
                 }
             }
         }
-        // Debugging statement to print best move and value
-        System.out.println("Best move found: " + bestMove + " with value: " + bestValue);
         return bestMove;
     }
 
-    private static int evaluateBoardState(Board board) {
+    private static int evaluateBoard(Board board) {
         int winner = board.checkWinner();
 
-        if (winner == 2) { // AI winner
+        if (winner == Board.COMPUTER) { // AI winner
             return 10;
-        } else if (winner == 1) { // human winner
+        } else if (winner == Board.HUMAN) { // human winner
             return -10;
         } else { // no winner yet
             return 0;
         }
     }
 
-    public static int MAX_DEPTH = 5;
-
     private static int miniMax(Board board, int depth, boolean isMaxTurn) {
-        return 1;
+        int score = evaluateBoard(board);
+
+        System.out.println(depth + " " + score);
+
+        if (score == 10 || score == -10 || depth == 0) {
+            return score; // computer or human win
+        }
+
+        if (board.emptySpaces() == 0) {
+            return score; // draw
+        }
+
+        if (isMaxTurn) {
+            int bestScore = LOWEST;
+
+            int[][] boardState = board.getBoard();
+
+            for (int row = 0; row < Board.ROWS; row++) {
+                for (int column = 0; column < Board.COLUMNS; column++) {
+
+                    if (boardState[row][column] == Board.EMPTY) {
+
+                        board.placeMove(row, column, Board.COMPUTER);
+
+                        // bestScore = Math.max(bestScore, miniMax(board, depth - 1, !isMaxTurn));
+                        bestScore = Math.max(bestScore, miniMax(board, depth + 1, !isMaxTurn));
+
+                        board.undoMove(row, column);
+                    }
+                }
+            }
+
+            return bestScore;
+        } else {
+            int bestScore = HIGHEST;
+
+            int[][] boardState = board.getBoard();
+
+            for (int row = 0; row < Board.ROWS; row++) {
+                for (int column = 0; column < Board.COLUMNS; column++) {
+
+                    if (boardState[row][column] == Board.EMPTY) {
+
+                        board.placeMove(row, column, Board.HUMAN);
+
+                        // bestScore = Math.min(bestScore, miniMax(board, depth - 1, !isMaxTurn));
+                        bestScore = Math.min(bestScore, miniMax(board, depth + 1, !isMaxTurn));
+
+                        board.undoMove(row, column);
+                    }
+                }
+            }
+
+            return bestScore;
+        }
     }
 
 }

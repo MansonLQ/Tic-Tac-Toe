@@ -44,15 +44,19 @@ public class Main {
             }
 
             gameOver = isGameOver(board);
+            if (gameOver) {
+                board.displayBoard();
+                break;
+            }
 
             // Computer's turn
             System.out.println("Computer's turn...\n");
 
-            // String bestMove = MiniMax.findBestMove(board);
-            String bestMove = "01";
+            int[] bestMove = MiniMax.findBestMove(board);
+            // String bestMove = "01";
 
-            int row = Character.getNumericValue(bestMove.charAt(0));
-            int column = Character.getNumericValue(bestMove.charAt(1));
+            int row = bestMove[0];
+            int column = bestMove[1];
 
             String computerMove = "" + Character.toUpperCase((char) ('a' + row)) + (column);
             board.placeMove(row, column, Board.COMPUTER);

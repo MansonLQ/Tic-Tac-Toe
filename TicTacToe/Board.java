@@ -22,7 +22,7 @@ public class Board {
                 { 0, 0, 0, 0, 0, 0, 0, 0 },
                 { 0, 0, 0, 0, 0, 0, 0, 0 },
         };
-        Board board = new Board();
+        Board board = new Board(test);
 
         board.placeMove(0, 1, HUMAN);
         board.placeMove(0, 2, COMPUTER);
@@ -69,14 +69,14 @@ public class Board {
     }
 
     private boolean isValidSpot(int row, int column) {
-        if (row < 0 || row > 7 || column < 0 || column > 7) {
+        if (row < 0 || row > 7 || column < 0 || column > 7 || board[row][column] != EMPTY) {
             // System.out.println("Invalid location: (" + row + ", " + column + "):
             // Board.java");
             System.out.println("Invalid location, try again.");
             return false;
         }
 
-        return board[row][column] == EMPTY;
+        return true; // spot is empty and within 2d array bounds
     }
 
     public boolean placeMove(int row, int column, int player) {
