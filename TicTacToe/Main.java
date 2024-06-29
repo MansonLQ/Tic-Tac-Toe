@@ -52,8 +52,14 @@ public class Main {
             // Computer's turn
             System.out.println("Computer's turn...\n");
 
-            int[] bestMove = MiniMax.findBestMove(board);
-            // String bestMove = "01";
+            long endTime = System.currentTimeMillis() + 5000; // end time is 5 seconds later
+
+            int depth = 1; // IDS start at depth 1
+            int[] bestMove = new int[] { -1, -1 };
+            while (System.currentTimeMillis() < endTime) {
+                bestMove = MiniMax.alphaBetaPruning(board, depth, endTime);
+                depth++;
+            }
 
             int row = bestMove[0];
             int column = bestMove[1];

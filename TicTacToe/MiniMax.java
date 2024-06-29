@@ -3,11 +3,82 @@ package TicTacToe;
 public class MiniMax {
     private static final int LOWEST = -1000;
     private static final int HIGHEST = 1000;
-    // public static final int MAX_DEPTH = 6;
+    // private static final int MAX_DEPTH = 6;
 
-    public static int[] findBestMove(Board board) {
+    private static int evaluateBoard(Board board) {
+        int winner = board.checkWinner();
+
+        if (winner == Board.COMPUTER) { // AI winner
+            return 10;
+        } else if (winner == Board.HUMAN) { // human winner
+            return -10;
+        } else { // no winner yet
+            return 0;
+        }
+    }
+
+    private static int max(Board board, int alpha, int beta, int depth, long endTime) {
+        if (depth == 0 || System.currentTimeMillis() >= endTime) {
+            return evaluateBoard(board);
+        }
+
         int bestScore = LOWEST;
+        int[][] boardState = board.getBoard();
+
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int column = 0; column < Board.COLUMNS; column++) {
+
+                if (boardState[row][column] == Board.EMPTY) {
+
+                    board.placeMove(row, column, Board.COMPUTER);
+
+                    // bestScore = Math.min(bestScore, miniMax(board, depth - 1, !isMaxTurn));
+                    bestScore = Math.max(bestScore, min(board, alpha, beta, depth - 1, endTime));
+
+                    board.undoMove(row, column);
+
+                    if (bestScore >= beta) {
+                        return bestScore;
+                    }
+                    alpha = Math.max(alpha, bestScore);
+                }
+            }
+        }
+        return bestScore;
+    }
+
+    private static int min(Board board, int alpha, int beta, int depth, long endTime) {
+        if (depth == 0 || System.currentTimeMillis() >= endTime) {
+            return evaluateBoard(board);
+        }
+
+        int bestScore = HIGHEST;
+        int[][] boardState = board.getBoard();
+
+        for (int row = 0; row < Board.ROWS; row++) {
+            for (int column = 0; column < Board.COLUMNS; column++) {
+
+                if (boardState[row][column] == Board.EMPTY) {
+
+                    board.placeMove(row, column, Board.HUMAN);
+
+                    bestScore = Math.min(bestScore, max(board, alpha, beta, depth - 1, endTime));
+
+                    board.undoMove(row, column);
+
+                    if (bestScore <= alpha) {
+                        return bestScore;
+                    }
+                    alpha = Math.min(beta, bestScore);
+                }
+            }
+        }
+        return bestScore;
+    }
+
+    public static int[] alphaBetaPruning(Board board, int depth, long endTime) {
         int[] bestMove = new int[] { -1, -1 };
+        int bestScore = LOWEST;
 
         int[][] boardState = board.getBoard();
 
@@ -18,8 +89,7 @@ public class MiniMax {
 
                     board.placeMove(row, column, Board.COMPUTER);
 
-                    int boardScore = miniMax(board, 0, false);
-                    // int boardScore = miniMax(board, MAX_DEPTH, false);
+                    int boardScore = min(board, LOWEST, HIGHEST, depth - 1, endTime);
 
                     board.undoMove(row, column);
 
@@ -35,74 +105,96 @@ public class MiniMax {
         return bestMove;
     }
 
-    private static int evaluateBoard(Board board) {
-        int winner = board.checkWinner();
+    // public static int[] findBestMove(Board board) {
+    // int bestScore = LOWEST;
+    // int[] bestMove = new int[] { -1, -1 };
 
-        if (winner == Board.COMPUTER) { // AI winner
-            return 10;
-        } else if (winner == Board.HUMAN) { // human winner
-            return -10;
-        } else { // no winner yet
-            return 0;
-        }
-    }
+    // int[][] boardState = board.getBoard();
 
-    private static int miniMax(Board board, int depth, boolean isMaxTurn) {
-        int score = evaluateBoard(board);
+    // for (int row = 0; row < Board.ROWS; row++) {
+    // for (int column = 0; column < Board.COLUMNS; column++) {
 
-        System.out.println(depth + " " + score);
+    // if (boardState[row][column] == Board.EMPTY) {
 
-        if (score == 10 || score == -10 || depth == 0) {
-            return score; // computer or human win
-        }
+    // board.placeMove(row, column, Board.COMPUTER);
 
-        if (board.emptySpaces() == 0) {
-            return score; // draw
-        }
+    // int boardScore = miniMax(board, 0, false);
+    // // int boardScore = miniMax(board, MAX_DEPTH, false);
 
-        if (isMaxTurn) {
-            int bestScore = LOWEST;
+    // board.undoMove(row, column);
 
-            int[][] boardState = board.getBoard();
+    // if (boardScore > bestScore) { // boardScore
+    // bestMove[0] = row;
+    // bestMove[1] = column;
 
-            for (int row = 0; row < Board.ROWS; row++) {
-                for (int column = 0; column < Board.COLUMNS; column++) {
+    // bestScore = boardScore;
+    // }
+    // }
+    // }
+    // }
+    // return bestMove;
+    // }
 
-                    if (boardState[row][column] == Board.EMPTY) {
+    // private static int miniMax(Board board, int depth, boolean isMaxTurn) {
+    // int score = evaluateBoard(board);
 
-                        board.placeMove(row, column, Board.COMPUTER);
+    // // System.out.println(depth + " " + score);
+    // // System.out.println(board.emptySpaces());
 
-                        // bestScore = Math.max(bestScore, miniMax(board, depth - 1, !isMaxTurn));
-                        bestScore = Math.max(bestScore, miniMax(board, depth + 1, !isMaxTurn));
+    // if (score == 10 || score == -10) {
+    // return score; // computer or human win
+    // }
 
-                        board.undoMove(row, column);
-                    }
-                }
-            }
+    // if (board.emptySpaces() == 0) {
+    // return 0; // draw
+    // }
 
-            return bestScore;
-        } else {
-            int bestScore = HIGHEST;
+    // if (depth >= MAX_DEPTH) {
+    // return score; // limit depth to avoid infinite recursion
+    // }
 
-            int[][] boardState = board.getBoard();
+    // if (isMaxTurn) {
+    // int bestScore = LOWEST;
 
-            for (int row = 0; row < Board.ROWS; row++) {
-                for (int column = 0; column < Board.COLUMNS; column++) {
+    // int[][] boardState = board.getBoard();
 
-                    if (boardState[row][column] == Board.EMPTY) {
+    // for (int row = 0; row < Board.ROWS; row++) {
+    // for (int column = 0; column < Board.COLUMNS; column++) {
 
-                        board.placeMove(row, column, Board.HUMAN);
+    // if (boardState[row][column] == Board.EMPTY) {
 
-                        // bestScore = Math.min(bestScore, miniMax(board, depth - 1, !isMaxTurn));
-                        bestScore = Math.min(bestScore, miniMax(board, depth + 1, !isMaxTurn));
+    // board.placeMove(row, column, Board.COMPUTER);
 
-                        board.undoMove(row, column);
-                    }
-                }
-            }
+    // // bestScore = Math.max(bestScore, miniMax(board, depth - 1, !isMaxTurn));
+    // bestScore = Math.max(bestScore, miniMax(board, depth + 1, !isMaxTurn));
 
-            return bestScore;
-        }
-    }
+    // board.undoMove(row, column);
+    // }
+    // }
+    // }
 
+    // return bestScore;
+    // } else {
+    // int bestScore = HIGHEST;
+
+    // int[][] boardState = board.getBoard();
+
+    // for (int row = 0; row < Board.ROWS; row++) {
+    // for (int column = 0; column < Board.COLUMNS; column++) {
+
+    // if (boardState[row][column] == Board.EMPTY) {
+
+    // board.placeMove(row, column, Board.HUMAN);
+
+    // // bestScore = Math.min(bestScore, miniMax(board, depth - 1, !isMaxTurn));
+    // bestScore = Math.min(bestScore, miniMax(board, depth + 1, !isMaxTurn));
+
+    // board.undoMove(row, column);
+    // }
+    // }
+    // }
+
+    // return bestScore;
+    // }
+    // }
 }
